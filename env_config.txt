@@ -1,0 +1,68 @@
+1、install anaconda
+  在清华镜像下载Linux版本的anaconda (https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/)
+  在用户文件夹下新建一个名为anaconda的文件夹，并将刚刚下载的文件放在此文件夹中
+  bash Anaconda3-2021.11-Linux-x86_64.sh
+
+
+2、install cuda
+  wget https://developer.download.nvidia.com/compute/cuda/11.1.0/local_installers/cuda_11.1.0_455.23.05_linux.run
+  sudo sh cuda_11.1.0_455.23.05_linux.run
+  然后就是安装11.1版本的cuda。首先在sudo sh cuda_11.1.0_455.23.05_linux.run后选择continue，然后输入accept,进入安装选项cuda installer
+  这里面的X代表选择，按enter键取消X消失（即不选择）。
+  我因为装过驱动了，所以驱动那个选项不选，其他全选了，然后就是选install，进行安装，一会就安装好了。
+  此时cuda11.1安装完毕，然后就是在~/.bashrc里面添加路径
+  原本只装一个版本的话，路径添加如下：
+    export LD_LIBRARY_PATH=/usr/local/cuda-11.1/lib64:$LD_LIBRARY_PATH
+    export PATH=/usr/local/cuda-11.1/bin:$PATH
+    export CUDA_HOME=/usr/local/cuda-11.1
+  多版本的话需要换种写法，如下：
+    export CUDA_HOME=/usr/local/cuda
+    export PATH=$PATH:$CUDA_HOME/bin 
+    export LD_LIBRARY_PATH=/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+  但nvcc -V后还是10.1，这是因为软连接还没有变，所以接下来就是换软连接    #nvidia-smi diaplay version is false!!!!! so use nvcc -V
+    sudo rm -rf /usr/local/cuda                                      #删除之前创建的软链接
+    sudo ln -s /usr/local/cuda-11.1  /usr/local/cuda      #创建新 cuda 的软链接
+  然后就是安装cudnn (cudnn官方下载地址: https://developer.nvidia.com/rdp/cudnn-archive)   #if u has installed cuda-drive maybe don't require do this step
+  然后选择和cuda版本相匹配的版本，这里因为我要为cuda11.1装cudnn，所以我选的是cudnn-11.1-linux-x64-v8.0.5.39.tgz
+  下载之后解压：
+    tar zxvf cudnn-11.1-linux-x64-v8.0.5.39.tgz
+  然后就是：
+    sudo cp include/cudnn*.h /usr/local/cuda/include/  #没*的话后面会报错
+    sudo cp lib64/lib* /usr/local/cuda/lib64/
+    sudo chmod a+r /usr/local/cuda/include/cudnn*.h /usr/local/cuda/lib64/libcudnn*
+  然后建立cudnn的软连接
+    cd /usr/local/cuda/lib64/
+    sudo chmod +r libcudnn.so.8.0.5
+    sudo ln -sf libcudnn.so.8.0.5 libcudnn.so.8
+    sudo ln -sf libcudnn.so.8 libcudnn.so
+    sudo ldconfig
+  然后查看cudnn版本：
+    cat /usr/local/cuda/include/cudnn_version.h | grep CUDNN_MAJOR -A 2
+    
+    
+3、install correct pytorch  (https://pytorch.org/get-started/previous-versions/)
+  # CUDA 10.2
+    conda install pytorch==1.10.1 torchvision==0.11.2 torchaudio==0.10.1 cudatoolkit=10.2 -c pytorch
+  # CUDA 11.1
+    pip install torch==1.10.0+cu111 torchvision==0.11.0+cu111 torchaudio==0.10.0 -f https://download.pytorch.org/whl/torch_stable.html
+  # CUDA 11.3
+    conda install pytorch==1.10.1 torchvision==0.11.2 torchaudio==0.10.1 cudatoolkit=11.3 -c pytorch -c conda-forge
+  # CPU Only
+    conda install pytorch==1.10.1 torchvision==0.11.2 torchaudio==0.10.1 cpuonly -c pytorch
+   
+  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+  
